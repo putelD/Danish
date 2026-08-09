@@ -1,0 +1,28 @@
+name: Update APK from Telegram
+
+on:
+  repository_dispatch:
+    types: [update-apk]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Download APK
+        run: |
+          curl -L -o MParivahan.apk "${{ github.event.client_payload.apk_url }}"
+      
+      - name: Commit and push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add MParivahan.apk
+          git diff --staged --quiet || git commit -m "Update APK: ${{ github.event.client_payload.file_name }}"
+          git push
